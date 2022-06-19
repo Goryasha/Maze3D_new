@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/Горяинов Кирилл/CLionProjects/Maze3D_new
+# Install script for directory: C:/Users/UnnamedTask/CLionProjects/Maze3D_new
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,7 +34,7 @@ endif()
 
 # Set default install directory permissions.
 if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "D:/CLion 2021.3.3/bin/mingw/bin/objdump.exe")
+  set(CMAKE_OBJDUMP "F:/apps/CLion 2022.1/bin/mingw/bin/objdump.exe")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/Users/Горяинов Кирилл/CLionProjects/Maze3D_new/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/UnnamedTask/CLionProjects/Maze3D_new/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
