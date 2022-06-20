@@ -7,7 +7,7 @@
 #include <random>
 #include <ctime>
 #include "function.h"
-//
+// test commit
 
 
 struct Point {
