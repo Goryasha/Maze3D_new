@@ -15,7 +15,7 @@ auto m_print(std::vector<std::vector<std::vector<my_type>>> &maze) -> void;
 
 struct Point;
 
-auto comp(std::pair<char, float> &a, std::pair<char, float> &b) -> bool;
+auto comp(std::pair<char, int> &a, std::pair<char, int> &b) -> bool;
 
 auto gen(size_t side_x, size_t side_y, size_t side_z, float weightx, float weighty, float weightz,
          std::vector<float> &vertex, std::vector<int> &index) -> Point;
