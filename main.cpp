@@ -51,6 +51,7 @@ int field_size=5;
 float xdeg =5;
 float zdeg =0;
 coord anal ={0,0,0};
+int ind_size;
 //POINTFLOAT pos ={0,0};
 
 //struct{
@@ -118,7 +119,7 @@ void ShowWorld(float *vert,GLuint *ind, float *ppp){
 
     glColor3f(0.203921568627451,0.5333333333333333,0.5333333333333333);
     glLineWidth(3);
-    glDrawElements(GL_LINES,26000,GL_UNSIGNED_INT,ind);
+    glDrawElements(GL_LINES,ind_size,GL_UNSIGNED_INT,ind);
 
     glVertexPointer(3,GL_FLOAT,0,ppp);
     glColor3f(0.9490196078431373,0.2666666666666667,0.0196078431372549);
@@ -133,11 +134,11 @@ void ShowWorld(float *vert,GLuint *ind, float *ppp){
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){
     auto v1 =std::vector<float>();
     auto v2 =std::vector<int>();
-    auto p = gen(20,20,20,0.3,0.3,0.3,v1,v2);
+    auto p = gen(5,5,5,0.8,0.1,0.1,v1,v2);
 
     float vert[v1.size()];//координаты
     GLuint ind[v2.size()];// индексы
-    std::cout<<v2.size();
+    ind_size = v2.size();
     float ppp[]={(float)p.x,(float)p.y,(float)p.z};
     std::copy(v1.begin(),v1.end(),vert);
     std::copy(v2.begin(),v2.end(),ind);
