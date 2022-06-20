@@ -3,47 +3,9 @@
 #include <gl/gl.h>
 #include <cmath>
 #include "function.h"
-
-struct Point {
-    size_t x;
-    size_t y;
-    size_t z;
-
-    Point(size_t x, size_t y, size_t z) {
-        this->x = x;
-        this->y = y;
-        this->z = z;
-    }
-
-    void cor(int k = 1) const {
-        if (k == 1)
-            std::cout << x << ' ' << y << ' ' << z << ' ';
-        else
-            std::cout << x << ' ' << y << ' ' << z << '\n';
-    }
-
-    bool operator<(const Point &right) const {
-        if (x < right.x)
-            return true;
-        else if (x == right.x) {
-            if (y < right.y)
-                return true;
-            else if (y == right.y) {
-                return z < right.z;
-            }
-        }
-        return false;
-    }
-};
+#include "camera.h"
 
 HWND hwnd;
-
-
-struct{
-    float x,y,z;
-    float xdeg,zdeg;
-
-}camera={0,0,1.7,70,-40};
 
 void Win_Resize(int x, int y){
     glViewport(0,0,x,y);
@@ -53,22 +15,6 @@ void Win_Resize(int x, int y){
     glFrustum(-k*sz,k*sz,-sz,sz,sz*2,80);
 }
 
-void Camera_Apply(){
-    glRotatef(-camera.xdeg,1,0,0);
-    glRotatef(-camera.zdeg,0,0,1);
-    glTranslatef(-camera.x,-camera.y,-camera.z);
-}
-
-void Camera_Rotation(float xAngle,float zAngle){
-    camera.zdeg+=zAngle;
-    if(camera.zdeg<0) camera.zdeg+=360;
-    if(camera.zdeg>360) camera.zdeg-=360;
-    camera.xdeg+=xAngle;
-    if(camera.xdeg<0) camera.xdeg=0;
-    if(camera.xdeg>180) camera.xdeg=180;
-
-
-}
 void GameInit(){
     glEnable(GL_DEPTH_TEST);
 
@@ -79,29 +25,7 @@ void GameInit(){
 
 void Player_Move(){
     if(GetForegroundWindow()!=hwnd)return;
-
-    float angle = -camera.zdeg / 180 * M_PI ;
-    float speed =0;
-    float speedz =0;
-    if (GetKeyState('W')<0) speed =0.1;
-    if (GetKeyState(VK_SPACE)<0) speedz =0.1;
-    if (GetKeyState(VK_CONTROL)<0) speedz =-0.1;
-    if (GetKeyState('S')<0) speed =-0.1;
-    if (GetKeyState('A')<0) {speed =0.1;angle -=M_PI*0.5;};
-    if (GetKeyState('D')<0) {speed =0.1;angle +=M_PI*0.5;};
-    if (speed!=0) {
-        camera.x +=sin(angle)*speed;
-        camera.y +=cos(angle)*speed;
-    }
-    if(speedz!=0){
-        camera.z+=speedz;
-    }
-
-    POINT cur;
-    static POINT base ={400,300};
-    GetCursorPos(&cur);
-    Camera_Rotation((base.y-cur.y)/5.0,(base.x-cur.x)/5.0);
-    SetCursorPos(base.x,base.y);
+    Camera_MoveByMouse(400,400);
 }
 
 void Game_Move(){
