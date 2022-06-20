@@ -4,13 +4,6 @@
 #include <cmath>
 #include "function.h"
 
-struct coord{
-    float x;
-    float y;
-    float z;
-};
-
-
 struct Point {
     size_t x;
     size_t y;
@@ -43,39 +36,51 @@ struct Point {
     }
 };
 
-int w,h;
-
-float field_vert[] = {1,1,0, 1,-1,0, -1,-1,0, -1,1,0};//это пол не трогай
-int field_size=5;
-
-float xdeg =5;
-float zdeg =0;
-coord anal ={0,0,0};
-//POINTFLOAT pos ={0,0};
-
-//struct{
-//    float x,y,z;
-//    float xdeg,zdeg;
-//
-//}camera={0,0,1.7,10,-40};
-//
-//void Win_RE
-//
-//void Camera_Apply(){
-//    glRotatef(-camera.xdeg,1,0,0);
-//    glRotatef(-camera.zdeg,0,0,1);
-//    glTranslatef(-camera.x,-camera.y,-camera.z);
-//}
+HWND hwnd;
 
 
-void MoveCamera(){
-    if (GetKeyState(VK_UP)<0) xdeg = ++xdeg >180 ? 180:xdeg;
-    if (GetKeyState(VK_DOWN)<0) xdeg = --xdeg <0 ? 0:xdeg;
+struct{
+    float x,y,z;
+    float xdeg,zdeg;
 
-    if(GetKeyState(VK_LEFT)<0) zdeg++;
-    if(GetKeyState(VK_RIGHT)<0) zdeg--;
+}camera={0,0,1.7,70,-40};
 
-    float angle = -zdeg / 180 * M_PI ;
+void Win_Resize(int x, int y){
+    glViewport(0,0,x,y);
+    float k = x/(float)y;
+    float sz=0.1;
+    glLoadIdentity();
+    glFrustum(-k*sz,k*sz,-sz,sz,sz*2,80);
+}
+
+void Camera_Apply(){
+    glRotatef(-camera.xdeg,1,0,0);
+    glRotatef(-camera.zdeg,0,0,1);
+    glTranslatef(-camera.x,-camera.y,-camera.z);
+}
+
+void Camera_Rotation(float xAngle,float zAngle){
+    camera.zdeg+=zAngle;
+    if(camera.zdeg<0) camera.zdeg+=360;
+    if(camera.zdeg>360) camera.zdeg-=360;
+    camera.xdeg+=xAngle;
+    if(camera.xdeg<0) camera.xdeg=0;
+    if(camera.xdeg>180) camera.xdeg=180;
+
+
+}
+void GameInit(){
+    glEnable(GL_DEPTH_TEST);
+
+    RECT rct;
+    GetClientRect(hwnd,&rct);
+    Win_Resize(rct.right,rct.bottom);
+}
+
+void Player_Move(){
+    if(GetForegroundWindow()!=hwnd)return;
+
+    float angle = -camera.zdeg / 180 * M_PI ;
     float speed =0;
     float speedz =0;
     if (GetKeyState('W')<0) speed =0.1;
@@ -85,40 +90,38 @@ void MoveCamera(){
     if (GetKeyState('A')<0) {speed =0.1;angle -=M_PI*0.5;};
     if (GetKeyState('D')<0) {speed =0.1;angle +=M_PI*0.5;};
     if (speed!=0) {
-        anal.x +=sin(angle)*speed;
-        anal.y +=cos(angle)*speed;
+        camera.x +=sin(angle)*speed;
+        camera.y +=cos(angle)*speed;
     }
     if(speedz!=0){
-        anal.z+=speedz;
+        camera.z+=speedz;
     }
 
-    glRotatef(-xdeg, 1,0,0);
-    glRotatef(-zdeg, 0,0,1);
+    POINT cur;
+    static POINT base ={400,300};
+    GetCursorPos(&cur);
+    Camera_Rotation((base.y-cur.y)/5.0,(base.x-cur.x)/5.0);
+    SetCursorPos(base.x,base.y);
+}
 
-    glTranslatef(-anal.x,-anal.y,-anal.z);
+void Game_Move(){
+    Player_Move();
 }
 
 
 void ShowWorld(float *vert,GLuint *ind, float *ppp){
-    glEnableClientState(GL_VERTEX_ARRAY);
-//    glVertexPointer(3,GL_FLOAT,0,&field_vert);
-//    for (int i=-field_size;i<field_size;i++){
-//        for (int j=-field_size;j<field_size;j++){
-//            glPushMatrix();
-//            glColor3f(0,1,0.5);
-//            glTranslatef(i*2,j*2,0);
-//            glDrawArrays(GL_TRIANGLE_FAN,0,4);
-//            glPopMatrix();
-//        }
-//    }
-    glVertexPointer(3,GL_FLOAT,0,vert);
-//    glColor3f(0.9803921568627451,0.4980392156862745,0.0313725490196078);
-//    glPointSize(10);
-//    glDrawArrays(GL_POINTS,0,125);
+    glClearColor(0.6196078431372549f, 0.9725490196078431f, 0.9333333333333333f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glPushMatrix();
+    Camera_Apply();
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+
+    glVertexPointer(3,GL_FLOAT,0,vert);
     glColor3f(0.203921568627451,0.5333333333333333,0.5333333333333333);
     glLineWidth(3);
-    glDrawElements(GL_LINES,26000,GL_UNSIGNED_INT,ind);
+    glDrawElements(GL_LINES,500,GL_UNSIGNED_INT,ind);
 
     glVertexPointer(3,GL_FLOAT,0,ppp);
     glColor3f(0.9490196078431373,0.2666666666666667,0.0196078431372549);
@@ -127,13 +130,15 @@ void ShowWorld(float *vert,GLuint *ind, float *ppp){
 
     glDisableClientState(GL_VERTEX_ARRAY);
 
-
+    glPopMatrix();
 }
+
+
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){
     auto v1 =std::vector<float>();
     auto v2 =std::vector<int>();
-    auto p = gen(20,20,20,0.3,0.3,0.3,v1,v2);
+    auto p = gen(5,5,5,0.3,0.3,0.3,v1,v2);
 
     float vert[v1.size()];//координаты
     GLuint ind[v2.size()];// индексы
@@ -144,7 +149,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 
     WNDCLASSEX wcex;
-    HWND hwnd;
     HDC hDC;
     HGLRC hRC;
     MSG msg;
@@ -214,9 +218,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
      * Применяем OpenGl для Windows.
      */
 
-    glLoadIdentity();
-    glFrustum(-1,1, -1,1, 2,80);
-
+    GameInit();
     while (!bQuit)
     {
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -237,15 +239,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         else
         {
 
-            glClearColor(0.6196078431372549f, 0.9725490196078431f, 0.9333333333333333f, 0.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
-
-
-            glPushMatrix();
-//            Camera_Apply();
-            MoveCamera();
+            Game_Move();
             ShowWorld(vert,ind,ppp);
-            glPopMatrix();
 
             SwapBuffers(hDC);
 
@@ -279,6 +274,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         case WM_CLOSE:
             PostQuitMessage(0);
+            break;
+
+        case WM_SIZE:
+            Win_Resize(LOWORD(lParam),HIWORD(lParam));
+            break;
+
+        case WM_SETCURSOR:
+            ShowCursor(FALSE);
             break;
 
         case WM_DESTROY:
