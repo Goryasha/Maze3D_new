@@ -45,7 +45,7 @@ void Win_Resize(int x, int y){
     float k = x/(float)y;
     float sz=0.1;
     glLoadIdentity();
-    glFrustum(-k*sz,k*sz,-sz,sz,sz*2,80);
+    glFrustum(-k*sz,k*sz,-sz,sz,sz*2,150);
 }
 
 void GameInit(){
@@ -96,18 +96,18 @@ void ShowWorld(float *vert,GLuint *ind, float *ppp, int ind_size, int vert_size)
 
 
     glColor3f(1,1,1);
-//    glEnableClientState(GL_VERTEX_ARRAY);
-//    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-//    glVertexPointer(3,GL_FLOAT,0,vertex);
-//    glTexCoordPointer(2,GL_FLOAT,0,tex_coord);
-//    for (int i=0;i<vert_size;i++){
-//        glPushMatrix();
-//        glTranslatef(vert[i],vert[i+1],vert[i+2]);
-//        glDrawElements(GL_TRIANGLES,texIndCnt,GL_UNSIGNED_INT,base_texind);
-//        glPopMatrix();
-//    }
-//    glDisableClientState(GL_VERTEX_ARRAY);
-//    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glVertexPointer(3,GL_FLOAT,0,vertex);
+    glTexCoordPointer(2,GL_FLOAT,0,tex_coord);
+    for (int i=0;i<vert_size;i++){
+        glPushMatrix();
+        glTranslatef(vert[i],vert[i+1],vert[i+2]);
+        glDrawElements(GL_TRIANGLES,texIndCnt,GL_UNSIGNED_INT,base_texind);
+        glPopMatrix();
+    }
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glPopMatrix();
 
 
@@ -118,7 +118,7 @@ void ShowWorld(float *vert,GLuint *ind, float *ppp, int ind_size, int vert_size)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){
     auto v1 =std::vector<float>();
     auto v2 =std::vector<int>();
-    auto p = gen(5,5,5,0.3,0.3,0.3,v1,v2);
+    auto p = gen(20,20,1,1,1,10,v1,v2);
 
     float vert[v1.size()];//координаты
     GLuint ind[v2.size()];// индексы
