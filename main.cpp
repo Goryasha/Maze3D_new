@@ -5,7 +5,45 @@
 #include "function.h"
 #include "camera.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 HWND hwnd;
+unsigned int texture;
+float vertex[]={-1,-1,0, 1,-1,0, 1,1,0, -1,1,0};
+float tex_coord[]={0,1, 1,1, 1,0, 0,0};
+
+//void Load_Texture(const char *filename, GLuint *textureID){
+//    int width,height,cnt;
+//    unsigned char *data = stbi_load(filename,&width,&height,&cnt,0);
+//
+//    glGenTextures(1,textureID);
+//    glBindTexture(GL_TEXTURE_2D, *textureID);
+//    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+//    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+//    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+//    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+//    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,width,height,0,cnt==4 ? GL_RGBA: GL_RGB,GL_UNSIGNED_BYTE,data);
+//    glBindTexture(GL_TEXTURE_2D,0);
+//    stbi_image_free(data);
+//
+//}
+void Load_Texture(){
+    int width,height,cnt;
+    unsigned char *data = stbi_load("wall.png",&width,&height,&cnt,0);
+
+
+    glGenTextures(1,&texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,width,height,0, GL_RGBA,GL_UNSIGNED_BYTE,data);
+    glBindTexture(GL_TEXTURE_2D,0);
+    glBindTexture(0,texture);
+    stbi_image_free(data);
+}
 
 void Win_Resize(int x, int y){
     glViewport(0,0,x,y);
@@ -16,7 +54,9 @@ void Win_Resize(int x, int y){
 }
 
 void GameInit(){
-    glEnable(GL_DEPTH_TEST);
+//    Load_Texture("wall.png", &texture);
+    Load_Texture();
+
 
     RECT rct;
     GetClientRect(hwnd,&rct);
@@ -33,9 +73,13 @@ void Game_Move(){
 }
 
 
-void ShowWorld(float *vert,GLuint *ind, float *ppp){
+void ShowWorld(float *vert,GLuint *ind, float *ppp, int k){
     glClearColor(0.6196078431372549f, 0.9725490196078431f, 0.9333333333333333f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,texture);
+
 
     glPushMatrix();
     Camera_Apply();
@@ -45,14 +89,26 @@ void ShowWorld(float *vert,GLuint *ind, float *ppp){
     glVertexPointer(3,GL_FLOAT,0,vert);
     glColor3f(0.203921568627451,0.5333333333333333,0.5333333333333333);
     glLineWidth(3);
-    glDrawElements(GL_LINES,500,GL_UNSIGNED_INT,ind);
+    glDrawElements(GL_LINES,k,GL_UNSIGNED_INT,ind);
 
     glVertexPointer(3,GL_FLOAT,0,ppp);
     glColor3f(0.9490196078431373,0.2666666666666667,0.0196078431372549);
     glPointSize(10);
     glDrawArrays(GL_POINTS,0,1);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glColor3f(1,1,1);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glVertexPointer(3,GL_FLOAT,0,vertex);
+    glTexCoordPointer(2,GL_FLOAT,0,tex_coord);
+    glDrawArrays(GL_TRIANGLE_FAN,0,4);
+
+
 
     glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
     glPopMatrix();
 }
@@ -70,6 +126,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     float ppp[]={(float)p.x,(float)p.y,(float)p.z};
     std::copy(v1.begin(),v1.end(),vert);
     std::copy(v2.begin(),v2.end(),ind);
+    int k =sizeof(ind)/sizeof(*ind);
 
 
     WNDCLASSEX wcex;
@@ -164,7 +221,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         {
 
             Game_Move();
-            ShowWorld(vert,ind,ppp);
+            ShowWorld(vert,ind,ppp,k);
 
             SwapBuffers(hDC);
 
