@@ -194,3 +194,18 @@ auto m_print(std::vector<std::vector<std::vector<my_type>>> &maze) -> void {
         std::cout << '\n';
     }
 }
+
+auto cleaning(std::vector<int>& v) -> void {
+    auto s = std::set<std::pair<int, int>>();
+    for(size_t i = 0; i < v.size(); i+=2){
+        if(v[i] > v[i+1])
+            s.insert(std::make_pair(v[i+1], v[i]));
+        else
+            s.insert(std::make_pair(v[i], v[i+1]));
+    }
+    v.clear();
+    for(auto item : s){
+        v.push_back(item.first);
+        v.push_back(item.second);
+    }
+}

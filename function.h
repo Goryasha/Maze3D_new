@@ -62,6 +62,8 @@ auto gen(size_t side_x, size_t side_y, size_t side_z, float weightx, float weigh
          std::vector<float> &vertex, std::vector<int> &index) -> Point;
 
 auto cost(Point p0, std::map<Point, std::vector<Point>> &maze, std::map<Point, std::pair<int, int>> &vert_ind) -> void;
+
+auto cleaning(std::vector<int>& v) -> void;
 /*
  * WindowProc - отправление сообщений в Windows
  * EnableOpenGL и DisableOpenGL - открытие и закрытие отрисовки GL
