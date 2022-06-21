@@ -5,9 +5,6 @@
 #include "function.h"
 #include "camera.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 HWND hwnd;
 unsigned int texture;
 float vertex[]={-1,-1,0, 1,-1,0, 1,1,0, -1,1,0};
@@ -29,8 +26,16 @@ float tex_coord[]={0,1, 1,1, 1,0, 0,0};
 //
 //}
 void Load_Texture(){
-    int width,height,cnt;
-    unsigned char *data = stbi_load("wall.png",&width,&height,&cnt,0);
+    int width,height;
+    width=2;
+    height=2;
+    struct {unsigned char r,g,b,a;} data[2][2];
+    memset(data,0,sizeof(data));
+    data[0][0].r=255;
+    data[1][0].g=255;
+    data[1][1].b=255;
+    data[0][1].r=255;
+    data[0][1].g=255;
 
 
     glGenTextures(1,&texture);
@@ -42,7 +47,6 @@ void Load_Texture(){
     glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,width,height,0, GL_RGBA,GL_UNSIGNED_BYTE,data);
     glBindTexture(GL_TEXTURE_2D,0);
     glBindTexture(0,texture);
-    stbi_image_free(data);
 }
 
 void Win_Resize(int x, int y){
@@ -54,7 +58,6 @@ void Win_Resize(int x, int y){
 }
 
 void GameInit(){
-//    Load_Texture("wall.png", &texture);
     Load_Texture();
 
 
@@ -122,11 +125,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     float vert[v1.size()];//координаты
     GLuint ind[v2.size()];// индексы
-    std::cout<<v2.size();
     float ppp[]={(float)p.x,(float)p.y,(float)p.z};
     std::copy(v1.begin(),v1.end(),vert);
     std::copy(v2.begin(),v2.end(),ind);
-    int k =sizeof(ind)/sizeof(*ind);
+    int ind_size = v2.size();
 
 
     WNDCLASSEX wcex;
@@ -221,7 +223,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         {
 
             Game_Move();
-            ShowWorld(vert,ind,ppp,k);
+            ShowWorld(vert,ind,ppp,ind_size);
 
             SwapBuffers(hDC);
 
