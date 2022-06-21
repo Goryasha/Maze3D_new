@@ -7,7 +7,6 @@
 #include <random>
 #include <ctime>
 #include <set>
-#include "function.h"
 
 
 struct Point {

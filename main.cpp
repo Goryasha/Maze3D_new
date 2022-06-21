@@ -121,6 +121,12 @@ void ShowWorld(float *vert,GLuint *ind, float *ppp){
     glLineWidth(3);
     glDrawElements(GL_LINES,ind_size,GL_UNSIGNED_INT,ind);
 
+    float p0[]={(float)0,(float)0,(float)0};
+    glVertexPointer(3,GL_FLOAT,0,p0);
+    glColor3f(0.9490196078431373,0.2666666666666667,0.0196078431372549);
+    glPointSize(10);
+    glDrawArrays(GL_POINTS,0,1);
+
     glVertexPointer(3,GL_FLOAT,0,ppp);
     glColor3f(0.9490196078431373,0.2666666666666667,0.0196078431372549);
     glPointSize(10);
@@ -134,7 +140,7 @@ void ShowWorld(float *vert,GLuint *ind, float *ppp){
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){
     auto v1 =std::vector<float>();
     auto v2 =std::vector<int>();
-    auto p = gen(x_size,y_size,z_size,x_weight,y_weight,z_weight,v1,v2);
+    auto p = gen(20,20,20,100,1,1,v1,v2);
 
     float vert[v1.size()];//координаты
     GLuint ind[v2.size()];// индексы

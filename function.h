@@ -10,12 +10,12 @@ void DisableOpenGL(HWND HWND, HDC HDC, HGLRC HGLRC);
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);
 
 // configs
-auto x_size = 4;
-auto y_size = 4;
-auto z_size = 4;
-auto x_weight = float(0.3);
-auto y_weight = float(0.3);
-auto z_weight = float(0.3);
+//auto x_size = 5;
+//auto y_size = 5;
+//auto z_size = 5;
+//auto x_weight = float(0.3);
+//auto y_weight = float(0.3);
+//auto z_weight = float(0.3);
 //
 
 template<typename my_type>
