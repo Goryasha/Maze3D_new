@@ -18,6 +18,39 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 //auto z_weight = float(0.3);
 //
 
+struct Point {
+    size_t x;
+    size_t y;
+    size_t z;
+
+    Point(size_t x, size_t y, size_t z) {
+        this->x = x;
+        this->y = y;
+        this->z = z;
+    }
+
+    void cor(int k = 1) const {
+        if (k == 1)
+            std::cout << x << ' ' << y << ' ' << z << ' ';
+        else
+            std::cout << x << ' ' << y << ' ' << z << '\n';
+    }
+
+    bool operator<(const Point &right) const {
+        if (x < right.x)
+            return true;
+        else if (x == right.x) {
+            if (y < right.y)
+                return true;
+            else if (y == right.y) {
+                return z < right.z;
+            }
+        }
+        return false;
+    }
+};
+
+
 template<typename my_type>
 auto m_print(std::vector<std::vector<std::vector<my_type>>> &maze) -> void;
 

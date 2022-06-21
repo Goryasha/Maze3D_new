@@ -3,155 +3,136 @@
 #include <gl/gl.h>
 #include <cmath>
 #include "function.h"
+#include "camera.h"
 
-struct coord{
-    float x;
-    float y;
-    float z;
-};
+HWND hwnd;
+unsigned int texture;
+float vertex[]={-0.5,-0.5,-0.5, 0.5,-0.5,-0.5, 0.5,0.5,-0.5, -0.5,0.5,-0.5,
+                -0.5,-0.5,0.5, 0.5,-0.5,0.5, 0.5,0.5,0.5, -0.5,0.5,0.5};
+float tex_coord[]={0,1, 1,1, 0,1, 1,1,
+                   0,0,1,0,0,0,1,0};
+GLuint base_texind[] ={0,1,5,5,4,0,1,2,6,6,5,1,2,3,7,7,6,2,3,0,4,4,7,3,
+                  0,1,2,2,3,0,4,5,6,6,7,4};
 
+int texIndCnt = sizeof(base_texind)/sizeof(GLuint);
 
-struct Point {
-    size_t x;
-    size_t y;
-    size_t z;
-
-    Point(size_t x, size_t y, size_t z) {
-        this->x = x;
-        this->y = y;
-        this->z = z;
-    }
-
-    void cor(int k = 1) const {
-        if (k == 1)
-            std::cout << x << ' ' << y << ' ' << z << ' ';
-        else
-            std::cout << x << ' ' << y << ' ' << z << '\n';
-    }
-
-    bool operator<(const Point &right) const {
-        if (x < right.x)
-            return true;
-        else if (x == right.x) {
-            if (y < right.y)
-                return true;
-            else if (y == right.y) {
-                return z < right.z;
-            }
-        }
-        return false;
-    }
-};
-
-int w,h;
-
-float field_vert[] = {1,1,0, 1,-1,0, -1,-1,0, -1,1,0};//это пол не трогай
-int field_size=5;
-
-float xdeg =5;
-float zdeg =0;
-coord anal ={0,0,0};
-int ind_size;
-//POINTFLOAT pos ={0,0};
-
-//struct{
-//    float x,y,z;
-//    float xdeg,zdeg;
-//
-//}camera={0,0,1.7,10,-40};
-//
-//void Win_RE
-//
-//void Camera_Apply(){
-//    glRotatef(-camera.xdeg,1,0,0);
-//    glRotatef(-camera.zdeg,0,0,1);
-//    glTranslatef(-camera.x,-camera.y,-camera.z);
-//}
+void Load_Texture(){
+    int width,height;
+    width=2;
+    height=2;
+    struct {unsigned char r,g,b,a;} data[2][2];
+    memset(data,0,sizeof(data));
+    data[0][0].r=255;
+    data[1][0].g=255;
+    data[1][1].b=255;
+    data[0][1].r=255;
+    data[0][1].g=255;
 
 
-void MoveCamera(){
-    if (GetKeyState(VK_UP)<0) xdeg = ++xdeg >180 ? 180:xdeg;
-    if (GetKeyState(VK_DOWN)<0) xdeg = --xdeg <0 ? 0:xdeg;
+    glGenTextures(1,&texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,width,height,0, GL_RGBA,GL_UNSIGNED_BYTE,data);
+    glBindTexture(GL_TEXTURE_2D,0);
+    glBindTexture(0,texture);
+}
 
-    if(GetKeyState(VK_LEFT)<0) zdeg++;
-    if(GetKeyState(VK_RIGHT)<0) zdeg--;
+void Win_Resize(int x, int y){
+    glViewport(0,0,x,y);
+    float k = x/(float)y;
+    float sz=0.1;
+    glLoadIdentity();
+    glFrustum(-k*sz,k*sz,-sz,sz,sz*2,80);
+}
 
-    float angle = -zdeg / 180 * M_PI ;
-    float speed =0;
-    float speedz =0;
-    if (GetKeyState('W')<0) speed =0.1;
-    if (GetKeyState(VK_SPACE)<0) speedz =0.1;
-    if (GetKeyState(VK_CONTROL)<0 || GetKeyState(VK_SHIFT)<0) speedz =-0.1;
-    if (GetKeyState('S')<0) speed =-0.1;
-    if (GetKeyState('A')<0) {speed =0.1;angle -=M_PI*0.5;};
-    if (GetKeyState('D')<0) {speed =0.1;angle +=M_PI*0.5;};
-    if (speed!=0) {
-        anal.x +=sin(angle)*speed;
-        anal.y +=cos(angle)*speed;
-    }
-    if(speedz!=0){
-        anal.z+=speedz;
-    }
+void GameInit(){
+    Load_Texture();
 
-    glRotatef(-xdeg, 1,0,0);
-    glRotatef(-zdeg, 0,0,1);
 
-    glTranslatef(-anal.x,-anal.y,-anal.z);
+    RECT rct;
+    GetClientRect(hwnd,&rct);
+    Win_Resize(rct.right,rct.bottom);
+    glEnable(GL_DEPTH_TEST);
+}
+
+void Player_Move(){
+    if(GetForegroundWindow()!=hwnd)return;
+    Camera_MoveByMouse(400,400);
+}
+
+void Game_Move(){
+    Player_Move();
 }
 
 
-void ShowWorld(float *vert,GLuint *ind, float *ppp){
-    glEnableClientState(GL_VERTEX_ARRAY);
-//    glVertexPointer(3,GL_FLOAT,0,&field_vert);
-//    for (int i=-field_size;i<field_size;i++){
-//        for (int j=-field_size;j<field_size;j++){
-//            glPushMatrix();
-//            glColor3f(0,1,0.5);
-//            glTranslatef(i*2,j*2,0);
-//            glDrawArrays(GL_TRIANGLE_FAN,0,4);
-//            glPopMatrix();
-//        }
-//    }
-    glVertexPointer(3,GL_FLOAT,0,vert);
-//    glColor3f(0.9803921568627451,0.4980392156862745,0.0313725490196078);
-//    glPointSize(10);
-//    glDrawArrays(GL_POINTS,0,125);
+void ShowWorld(float *vert,GLuint *ind, float *ppp, int ind_size, int vert_size){
+    glClearColor(0.6196078431372549f, 0.9725490196078431f, 0.9333333333333333f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,texture);
+
+    glPushMatrix();
+    Camera_Apply();
+    glScalef(5,5,5);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+
+
+    glVertexPointer(3,GL_FLOAT,0,vert);
     glColor3f(0.203921568627451,0.5333333333333333,0.5333333333333333);
     glLineWidth(3);
     glDrawElements(GL_LINES,ind_size,GL_UNSIGNED_INT,ind);
 
-    float p0[]={(float)0,(float)0,(float)0};
-    glVertexPointer(3,GL_FLOAT,0,p0);
-    glColor3f(0.9490196078431373,0.2666666666666667,0.0196078431372549);
-    glPointSize(10);
-    glDrawArrays(GL_POINTS,0,1);
 
     glVertexPointer(3,GL_FLOAT,0,ppp);
     glColor3f(0.9490196078431373,0.2666666666666667,0.0196078431372549);
     glPointSize(10);
     glDrawArrays(GL_POINTS,0,1);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    glDisableClientState(GL_VERTEX_ARRAY);
+
+    glColor3f(1,1,1);
+//    glEnableClientState(GL_VERTEX_ARRAY);
+//    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//    glVertexPointer(3,GL_FLOAT,0,vertex);
+//    glTexCoordPointer(2,GL_FLOAT,0,tex_coord);
+//    for (int i=0;i<vert_size;i++){
+//        glPushMatrix();
+//        glTranslatef(vert[i],vert[i+1],vert[i+2]);
+//        glDrawElements(GL_TRIANGLES,texIndCnt,GL_UNSIGNED_INT,base_texind);
+//        glPopMatrix();
+//    }
+//    glDisableClientState(GL_VERTEX_ARRAY);
+//    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glPopMatrix();
 
 
 }
 
+
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){
     auto v1 =std::vector<float>();
     auto v2 =std::vector<int>();
-    auto p = gen(20,20,20,100,1,1,v1,v2);
+    auto p = gen(5,5,5,0.3,0.3,0.3,v1,v2);
 
     float vert[v1.size()];//координаты
     GLuint ind[v2.size()];// индексы
-    ind_size = v2.size();
     float ppp[]={(float)p.x,(float)p.y,(float)p.z};
     std::copy(v1.begin(),v1.end(),vert);
     std::copy(v2.begin(),v2.end(),ind);
+    int ind_size = v2.size();
+    int vert_size = v1.size();
+    for (int i = 0; i <ind_size; i+=2) {
+        std::cout<<ind[i]<<' '<<ind[i+1]<<'\t'<<'\t'<<vert[ind[i]]<<' '<<vert[ind[i]+1]<<' '<<vert[ind[i]+2]<<'\t'<<'\t'<<vert[ind[i+1]]<<' '<<vert[ind[i+1]+1]<<' '<<vert[ind[i+1]+2]<<'\n';
+    }
 
 
     WNDCLASSEX wcex;
-    HWND hwnd;
     HDC hDC;
     HGLRC hRC;
     MSG msg;
@@ -221,9 +202,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
      * Применяем OpenGl для Windows.
      */
 
-    glLoadIdentity();
-    glFrustum(-1,1, -1,1, 2,80);
-
+    GameInit();
     while (!bQuit)
     {
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -244,15 +223,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         else
         {
 
-            glClearColor(0.6196078431372549f, 0.9725490196078431f, 0.9333333333333333f, 0.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
-
-
-            glPushMatrix();
-//            Camera_Apply();
-            MoveCamera();
-            ShowWorld(vert,ind,ppp);
-            glPopMatrix();
+            Game_Move();
+            ShowWorld(vert,ind,ppp,ind_size,vert_size);
 
             SwapBuffers(hDC);
 
@@ -286,6 +258,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         case WM_CLOSE:
             PostQuitMessage(0);
+            break;
+
+        case WM_SIZE:
+            Win_Resize(LOWORD(lParam),HIWORD(lParam));
+            break;
+
+        case WM_SETCURSOR:
+            ShowCursor(FALSE);
             break;
 
         case WM_DESTROY:

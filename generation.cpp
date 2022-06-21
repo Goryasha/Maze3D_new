@@ -8,40 +8,6 @@
 #include <ctime>
 #include <set>
 
-
-struct Point {
-    size_t x;
-    size_t y;
-    size_t z;
-
-    Point(size_t x, size_t y, size_t z) {
-        this->x = x;
-        this->y = y;
-        this->z = z;
-    }
-
-    void cor(int k = 1) const {
-        if (k == 1)
-            std::cout << x << ' ' << y << ' ' << z << ' ';
-        else
-            std::cout << x << ' ' << y << ' ' << z << '\n';
-    }
-
-    bool operator<(const Point &right) const {
-        if (x < right.x)
-            return true;
-        else if (x == right.x) {
-            if (y < right.y)
-                return true;
-            else if (y == right.y) {
-                return z < right.z;
-            }
-        }
-        return false;
-    }
-};
-
-
 auto comp(std::pair<char, int> &a, std::pair<char, int> &b) -> bool {
     return a.second > b.second;
 }
