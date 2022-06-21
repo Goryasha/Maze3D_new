@@ -7,24 +7,15 @@
 
 HWND hwnd;
 unsigned int texture;
-float vertex[]={-1,-1,0, 1,-1,0, 1,1,0, -1,1,0};
-float tex_coord[]={0,1, 1,1, 1,0, 0,0};
+float vertex[]={-0.5,-0.5,-0.5, 0.5,-0.5,-0.5, 0.5,0.5,-0.5, -0.5,0.5,-0.5,
+                -0.5,-0.5,0.5, 0.5,-0.5,0.5, 0.5,0.5,0.5, -0.5,0.5,0.5};
+float tex_coord[]={0,1, 1,1, 0,1, 1,1,
+                   0,0,1,0,0,0,1,0};
+GLuint base_texind[] ={0,1,5,5,4,0,1,2,6,6,5,1,2,3,7,7,6,2,3,0,4,4,7,3,
+                  0,1,2,2,3,0,4,5,6,6,7,4};
 
-//void Load_Texture(const char *filename, GLuint *textureID){
-//    int width,height,cnt;
-//    unsigned char *data = stbi_load(filename,&width,&height,&cnt,0);
-//
-//    glGenTextures(1,textureID);
-//    glBindTexture(GL_TEXTURE_2D, *textureID);
-//    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-//    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-//    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-//    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-//    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,width,height,0,cnt==4 ? GL_RGBA: GL_RGB,GL_UNSIGNED_BYTE,data);
-//    glBindTexture(GL_TEXTURE_2D,0);
-//    stbi_image_free(data);
-//
-//}
+int texIndCnt = sizeof(base_texind)/sizeof(GLuint);
+
 void Load_Texture(){
     int width,height;
     width=2;
@@ -64,6 +55,7 @@ void GameInit(){
     RECT rct;
     GetClientRect(hwnd,&rct);
     Win_Resize(rct.right,rct.bottom);
+    glEnable(GL_DEPTH_TEST);
 }
 
 void Player_Move(){
@@ -76,23 +68,25 @@ void Game_Move(){
 }
 
 
-void ShowWorld(float *vert,GLuint *ind, float *ppp, int k){
+void ShowWorld(float *vert,GLuint *ind, float *ppp, int ind_size, int vert_size){
     glClearColor(0.6196078431372549f, 0.9725490196078431f, 0.9333333333333333f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,texture);
 
-
     glPushMatrix();
     Camera_Apply();
+    glScalef(5,5,5);
 
     glEnableClientState(GL_VERTEX_ARRAY);
+
 
     glVertexPointer(3,GL_FLOAT,0,vert);
     glColor3f(0.203921568627451,0.5333333333333333,0.5333333333333333);
     glLineWidth(3);
-    glDrawElements(GL_LINES,k,GL_UNSIGNED_INT,ind);
+    glDrawElements(GL_LINES,ind_size,GL_UNSIGNED_INT,ind);
+
 
     glVertexPointer(3,GL_FLOAT,0,ppp);
     glColor3f(0.9490196078431373,0.2666666666666667,0.0196078431372549);
@@ -100,20 +94,23 @@ void ShowWorld(float *vert,GLuint *ind, float *ppp, int k){
     glDrawArrays(GL_POINTS,0,1);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
+
     glColor3f(1,1,1);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-    glVertexPointer(3,GL_FLOAT,0,vertex);
-    glTexCoordPointer(2,GL_FLOAT,0,tex_coord);
-    glDrawArrays(GL_TRIANGLE_FAN,0,4);
-
-
-
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
+//    glEnableClientState(GL_VERTEX_ARRAY);
+//    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//    glVertexPointer(3,GL_FLOAT,0,vertex);
+//    glTexCoordPointer(2,GL_FLOAT,0,tex_coord);
+//    for (int i=0;i<vert_size;i++){
+//        glPushMatrix();
+//        glTranslatef(vert[i],vert[i+1],vert[i+2]);
+//        glDrawElements(GL_TRIANGLES,texIndCnt,GL_UNSIGNED_INT,base_texind);
+//        glPopMatrix();
+//    }
+//    glDisableClientState(GL_VERTEX_ARRAY);
+//    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glPopMatrix();
+
+
 }
 
 
@@ -129,6 +126,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     std::copy(v1.begin(),v1.end(),vert);
     std::copy(v2.begin(),v2.end(),ind);
     int ind_size = v2.size();
+    int vert_size = v1.size();
+    for (int i = 0; i <ind_size; i+=2) {
+        std::cout<<ind[i]<<' '<<ind[i+1]<<'\t'<<'\t'<<vert[ind[i]]<<' '<<vert[ind[i]+1]<<' '<<vert[ind[i]+2]<<'\t'<<'\t'<<vert[ind[i+1]]<<' '<<vert[ind[i+1]+1]<<' '<<vert[ind[i+1]+2]<<'\n';
+    }
 
 
     WNDCLASSEX wcex;
@@ -223,7 +224,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         {
 
             Game_Move();
-            ShowWorld(vert,ind,ppp,ind_size);
+            ShowWorld(vert,ind,ppp,ind_size,vert_size);
 
             SwapBuffers(hDC);
 
