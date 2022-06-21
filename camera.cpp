@@ -28,7 +28,7 @@ void Camera_MoveByMouse(int CenterX, int CenterY){
     float speedz =0;
     if (GetKeyState('W')<0) speed =0.1;
     if (GetKeyState(VK_SPACE)<0) speedz =0.1;
-    if (GetKeyState(VK_CONTROL)<0) speedz =-0.1;
+    if (GetKeyState(VK_CONTROL)<0 || GetKeyState(VK_SHIFT)<0) speedz =-0.1;
     if (GetKeyState('S')<0) speed =-0.1;
     if (GetKeyState('A')<0) {speed =0.1;angle -=M_PI*0.5;};
     if (GetKeyState('D')<0) {speed =0.1;angle +=M_PI*0.5;};
