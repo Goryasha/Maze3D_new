@@ -9,6 +9,14 @@ void EnableOpenGL(HWND hwnd, HDC* HDC, HGLRC* HGLRC);
 void DisableOpenGL(HWND HWND, HDC HDC, HGLRC HGLRC);
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);
 
+// configs
+//auto x_size = 5;
+//auto y_size = 5;
+//auto z_size = 5;
+//auto x_weight = float(0.3);
+//auto y_weight = float(0.3);
+//auto z_weight = float(0.3);
+//
 
 struct Point {
     size_t x;
