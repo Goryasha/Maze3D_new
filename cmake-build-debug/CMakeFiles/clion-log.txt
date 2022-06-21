@@ -1,5 +1,0 @@
-"D:\CLion 2021.3.3\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=D:/CLion 2021.3.3/bin/ninja/win/ninja.exe" -G Ninja "C:\Users\Горяинов Кирилл\CLionProjects\Maze3D_new"
--- Found SFML 2.5.1 in C:/SFML/lib/cmake/SFML
--- Configuring done
--- Generating done
--- Build files have been written to: C:/Users/Горяинов Кирилл/CLionProjects/Maze3D_new/cmake-build-debug
