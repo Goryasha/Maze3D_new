@@ -81,7 +81,7 @@ void MoveCamera(){
     float speedz =0;
     if (GetKeyState('W')<0) speed =0.1;
     if (GetKeyState(VK_SPACE)<0) speedz =0.1;
-    if (GetKeyState(VK_CONTROL)<0) speedz =-0.1;
+    if (GetKeyState(VK_CONTROL)<0 || GetKeyState(VK_SHIFT)<0) speedz =-0.1;
     if (GetKeyState('S')<0) speed =-0.1;
     if (GetKeyState('A')<0) {speed =0.1;angle -=M_PI*0.5;};
     if (GetKeyState('D')<0) {speed =0.1;angle +=M_PI*0.5;};
@@ -134,7 +134,7 @@ void ShowWorld(float *vert,GLuint *ind, float *ppp){
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){
     auto v1 =std::vector<float>();
     auto v2 =std::vector<int>();
-    auto p = gen(5,5,5,0.8,0.1,0.1,v1,v2);
+    auto p = gen(x_size,y_size,z_size,x_weight,y_weight,z_weight,v1,v2);
 
     float vert[v1.size()];//координаты
     GLuint ind[v2.size()];// индексы

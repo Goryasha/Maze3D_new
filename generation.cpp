@@ -128,7 +128,9 @@ auto gen(size_t side_x, size_t side_y, size_t side_z, float weightx, float weigh
     std::vector<std::pair<char, int>> weights = {{'x', static_cast<int>(weightx * 10)},
                                                  {'y', static_cast<int>(weighty * 10)},
                                                  {'z', static_cast<int>(weightz * 10)}};
-    std::cout << weights[0].second << ' ' << weights[1].second << ' ' << weights[2].second << '\n';
+    std::cout << "weight_x: "<<weights[0].second << '\n';
+    std::cout << "weight_y: "<<weights[1].second << '\n';
+    std::cout << "weight_z: "<<weights[2].second << '\n';
     auto vis = std::vector(side_x, std::vector<std::vector<int>>(side_y, std::vector<int>(side_z, false)));
     auto maze = std::map<Point, std::vector<Point>>();
     auto st = std::stack<Point>();
